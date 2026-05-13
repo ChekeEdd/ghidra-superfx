@@ -32,15 +32,32 @@ regression for mnemonic disassembly).
 
 ### Known limitation, scheduled for v0.4
 
-- **`SREG` / `DREG` selectors influence disassembly text but not
-  P-code data flow yet.** `WITH Rn` sets both selectors, `TO Rn`
-  sets `DREG`, `FROM Rn` sets `SREG`, but the ALU / LOAD / STORE /
-  FROM / TO semantic bodies still read and write `R0` directly.
+- **`SREG` / `DREG` selectors only partially modelled.** On real
+  SuperFX hardware, `WITH Rn` / `TO Rn` / `FROM Rn` are prefix
+  instructions that set the source / destination register selectors
+  for the next ALU / load / store op. Our v0.3.x state:
+
+  | Opcode | Hardware behaviour | This slaspec emits |
+  |---|---|---|
+  | `WITH Rn` | `SREG := Rn`, `DREG := Rn` | `SREG := Rn`, `DREG := Rn` ✓ |
+  | `TO Rn`   | `DREG := Rn` (prefix to next op) | `Rn := R0` (direct copy, **does not touch DREG**) |
+  | `FROM Rn` | `SREG := Rn` (prefix to next op) | `R0 := Rn` (direct copy, **does not touch SREG**) |
+
+  And even when WITH does populate the selectors, the following
+  ALU / load / store opcodes still read and write `R0` directly
+  rather than indirecting through `R<SREG>` / `R<DREG>`. So the
+  selectors carry no data flow downstream into the decompiler.
+
   Mnemonic disassembly remains 100 % byte-boundary and 100 %
-  family-name correct against bsnes; only the decompiler-facing
-  P-code is incorrect across TO / FROM / WITH prefix sequences.
-  Full SREG/DREG-driven rewrite of the ALU semantics is queued
-  for v0.4.
+  family-name correct against bsnes ground truth (`bsnes/processor/
+  gsu/disassembler.cpp` ALT0 also prints standalone `to rN` and
+  `from rN` mnemonics in this style). What is missing is the
+  P-code data flow across `WITH`/`TO`/`FROM` prefix sequences.
+
+  v0.4 plan: rewrite `TO` / `FROM` as proper prefix constructors
+  that emit a `globalset(inst_next, ...)` of the selector context,
+  then rebuild the ALU / load / store constructors so they read
+  `R<SREG>` and write `R<DREG>` via attached sub-tables.
 
 ## v0.3.0 — 2026-05-13
 

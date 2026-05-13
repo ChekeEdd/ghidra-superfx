@@ -15,15 +15,41 @@
 #     requirement.
 #
 #   Known limitation, scheduled for v0.4 — SREG/DREG (source/dest
-#   register selectors) are declared and tracked at the disassembly
-#   level (WITH Rn sets both, TO Rn sets DREG, FROM Rn sets SREG),
-#   but the ALU / LOAD / STORE / FROM / TO semantic bodies still
-#   read and write R0 directly instead of indirecting through the
-#   selectors. Mnemonic disassembly remains correct (matches bsnes
-#   ground truth on 64 KB of validated code) but the P-code emitted
-#   for the decompiler does not reflect data flow through TO/FROM/
-#   WITH prefixes. A full SREG/DREG-driven rewrite of the ALU
-#   semantics is the headline work item for v0.4.
+#   register selectors) are only partially modelled.
+#
+#   On real SuperFX hardware, WITH/TO/FROM are PREFIX instructions
+#   that set the selectors for the NEXT instruction only:
+#     WITH Rn -> sets SREG and DREG to Rn
+#     TO Rn   -> sets DREG to Rn
+#     FROM Rn -> sets SREG to Rn
+#   The following ALU/load/store opcode then reads from `R<SREG>`
+#   and writes to `R<DREG>` instead of the default R0.
+#
+#   Current v0.3.x state in this slaspec:
+#     :WITH op_lo4_reg ...  { SREG = ...; DREG = ...; }    <-- correct
+#     :TO   op_lo4_reg ...  { op_lo4_reg = R0; }           <-- R0 -> Rn copy,
+#                                                              does NOT touch DREG
+#     :FROM op_lo4_reg ...  { R0 = op_lo4_reg; }           <-- Rn -> R0 copy,
+#                                                              does NOT touch SREG
+#   So only WITH actually populates the selectors. TO and FROM are
+#   modelled as direct moves through R0, which is what bsnes' ALT0
+#   table also prints — the standalone-TO and standalone-FROM
+#   mnemonics. The prefix-style "TO sets DREG / FROM sets SREG"
+#   behaviour described in hardware docs is NOT yet implemented.
+#   And even when WITH does set the selectors, the downstream ALU /
+#   load / store semantic bodies still read and write R0 directly
+#   instead of indirecting through `R<SREG>`/`R<DREG>`, so the
+#   selectors leak no data flow into the decompiler.
+#
+#   Net effect: mnemonic disassembly remains correct (matches bsnes
+#   ground truth on 64 KB of validated Star Fox GSU code) because
+#   well-formed code interleaves single WITH/TO/FROM prefixes with
+#   one operand, and our decoder reproduces those mnemonics
+#   correctly even without tracking the selectors. But the P-code
+#   for the decompiler does not reflect WITH/TO/FROM as register
+#   redirection. Full prefix-style rewrite of TO/FROM plus
+#   SREG/DREG-driven ALU semantics is the headline work item for
+#   v0.4.
 #
 # Version 0.3.0 — closes out the three items previously marked
 # "deferred / out of scope" by either implementing them or producing
