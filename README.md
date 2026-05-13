@@ -141,7 +141,7 @@ across.
 
 ## Origin
 
-Originally developed as Phase 1a of a clean-room Star Fox SNES
+Originally developed as Phase 1 of a clean-room Star Fox SNES
 decompilation effort (private repository, not yet published).
 Split out into a standalone repo so it is useful to anyone
 reverse-engineering a SuperFX game, not only Star Fox.
