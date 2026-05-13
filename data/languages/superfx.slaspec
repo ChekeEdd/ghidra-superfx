@@ -1,5 +1,22 @@
 # SLEIGH specification for the Nintendo SuperFX (GSU-1 / GSU-2) co-processor.
 #
+# Version 0.3.2 — documentation-only patch. No semantic, encoding,
+#   or metadata changes; the built `.sla` is byte-identical.
+#     - bsnes upstream license corrected from "BSD" to GPLv3+ in the
+#       references list at the bottom of this header. The factual
+#       claim was simply wrong; both `bsnes-emu/bsnes` and `bsnes-jg`
+#       are GPLv3 / GPLv3+.
+#     - Clean-room boundary made explicit: bsnes is used as a
+#       black-box behavioral oracle (its binary is run, its text
+#       output is diffed against this module's); no bsnes source
+#       code is incorporated into this spec.
+#     - Ghidra Apache-2.0 attribution acknowledged in good faith for
+#       SLEIGH idiom reference (delayslot/globalset/context-register
+#       patterns from MIPS/ARM/6502 specs). Methods/patterns are
+#       not copyrightable, so attribution is not legally required,
+#       but recording it explicitly is the polite thing to do.
+#   See CHANGELOG.md v0.3.2 for the full audit notes.
+#
 # Version 0.3.1 — small post-release review fixes:
 #   - pspec GSU_REGS length corrected to 0x100 (was 0x300, overlapped
 #     GSU_CACHE at $3100). Per the SuperFX bus map, $3000-$30FF is the
@@ -196,13 +213,18 @@
 # GETB, SBK, LOOP) and full ALT1/ALT2/ALT3 context-driven decoding via the
 # `altCtx` context register propagated with globalset(inst_next, ...).
 #
-# References used (no code copied):
-#   - bsnes-emu/bsnes processor/gsu/ (BSD)
+# References used (no source code copied from any of these — facts
+# and behaviour only; expressive content is original to this spec):
+#   - bsnes-emu/bsnes processor/gsu/ (GPLv3+, behavioral reference)
+#   - bsnes-jg fork (GPLv3+, behavioral reference; consulted for STOP
+#     pipeline behaviour)
 #   - SnesLab Super_FX wiki
 #   - Wikibooks SNES Programming Super FX tutorial
 #   - jsgroth.dev SNES coprocessors part 7
 #   - problemkaputt.de fullsnes.htm
-#   - Ghidra ARM SLEIGH (for `goto [target]` idiom + globalset/noflow context)
+#   - Ghidra MIPS / ARM SLEIGH specs (Apache-2.0, idiom reference for
+#     delayslot / globalset / context-register / `goto [target]`
+#     patterns; no constructor text copied)
 
 ###############################################################################
 # Address spaces and alignment

@@ -4,6 +4,56 @@ All notable changes to ghidra-superfx are recorded in this file.
 The format is loosely based on Keep a Changelog; versions follow the
 SLEIGH spec's own version stamp in `data/languages/superfx.slaspec`.
 
+## v0.3.2 — 2026-05-13
+
+Documentation-only release. No changes to the SLEIGH spec, pspec,
+cspec, or built `.sla`; users do not need to re-download. The `.sla`
+checksum is unchanged; the `ldefs` `version` stays at `0.3`.
+
+### Fixed
+
+- **bsnes upstream license correctly identified as GPLv3+ (was
+  incorrectly stated as BSD 3-Clause).** Both `README.md` and the
+  `superfx.slaspec` header listed `bsnes-emu/bsnes` and the
+  `bsnes-jg` fork as BSD-licensed in the references section. The
+  actual upstream `bsnes-emu/bsnes` is GPLv3 (`GPLv3.txt` at repo
+  root) and `bsnes-jg` is GPLv3+. The factual claim was wrong;
+  corrected in both places.
+- **Clean-room boundary clarified.** The previous wording said "no
+  bytes from leaked source were copied", which addressed the wrong
+  risk (the primary licensing risk for a SLEIGH module of an
+  emulated processor is GPL upstream emulators, not leaked source).
+  The references section now explicitly states that no source code
+  was copied from any GPL-licensed emulator (bsnes, bsnes-jg) and
+  that those projects were used as black-box behavioral oracles
+  only — their binaries are run and their text output is compared
+  against this module's, but no bsnes source is incorporated into
+  any artifact shipped from this repo.
+- **Ghidra SLEIGH spec attribution acknowledged in good faith.**
+  Ghidra (Apache-2.0) MIPS / ARM / 6502 slaspecs were consulted for
+  SLEIGH idioms (`delayslot`, `globalset`, context-register
+  patterns). Methods/patterns are not copyrightable, so Apache-2.0
+  attribution is not legally required, but the acknowledgement is
+  now explicit in the references section of both `README.md` and
+  `superfx.slaspec`.
+
+### Audit performed
+
+A line-by-line audit of `superfx.slaspec` was performed against the
+above license claims. Findings:
+
+- Of ~30 in-file references to `bsnes`, all are factual ("matches
+  bsnes", "per bsnes gsu_disassembler.cpp", "bsnes prints X").
+  Facts about hardware behaviour and disassembler output text are
+  not copyrightable subject matter; nothing else from bsnes is
+  present.
+- Of ~10 in-file references to Ghidra processor specs (MIPS, 6502,
+  ARM, CR16C), all describe SLEIGH language patterns or idioms.
+  Constructor bodies in `superfx.slaspec` are original to this
+  spec.
+- `scripts/review.py` invokes the OpenAI `codex-plugin-cc` (Apache-2.0)
+  as a subprocess; no code is vendored from it.
+
 ## v0.3.1 — 2026-05-13
 
 Post-release review fixes (cosmetic / correctness, no functional

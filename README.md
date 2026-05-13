@@ -97,28 +97,47 @@ and the slaspec header for full design rationale.
 ## Validation methodology
 
 The module is byte-validated against bsnes' SuperFX disassembler
-(`bsnes/processor/gsu/disassembler.cpp`, BSD-licensed). The validation
-harness extracts a chunk of GSU code from a real Star Fox ROM, walks
-it linearly through both bsnes' Python-reimplemented decoder and
-Ghidra's headless analyzer using this module, then diffs the two
-text outputs line by line. Across 64 KB of real GSU code (covering
-all 12 RPC entry points in Star Fox, plus their helpers and the AC1D
-per-frame driver) the two decoders agree on 100 % of byte boundaries
-and 100 % of mnemonic families.
+(`bsnes/processor/gsu/disassembler.cpp` in bsnes-emu/bsnes, GPLv3+),
+used purely as a behavioral oracle — its text output is compared
+against this module's, and no bsnes source code is incorporated into
+the SLEIGH spec or any artifact shipped from this repo. The
+validation harness itself lives in the parent
+[Star Fox decomp project](https://github.com/edwardchekanua/StarFoxDecompilation)
+and is not redistributed here. It extracts a chunk of GSU code from
+a real Star Fox ROM, walks it linearly through both decoders, then
+diffs the two text outputs line by line. Across 64 KB of real GSU
+code (covering all 12 RPC entry points in Star Fox, plus their
+helpers and the AC1D per-frame driver) the two decoders agree on
+100 % of byte boundaries and 100 % of mnemonic families.
 
 ## References
 
-This module's design uses public reference material only. No bytes
-from leaked source were copied:
+This module was developed without copying source code from any
+GPL-licensed emulator and without consulting any leaked source
+material. The references below were used only for facts —
+instruction encodings, hardware behaviour, mnemonic conventions,
+and SLEIGH language idioms — i.e., to verify *what* a given
+instruction does, not *how* an existing implementation expresses
+it. Facts are not copyrightable; nothing beyond facts was carried
+across.
 
-- bsnes-jg / bsnes (BSD 3-Clause) — instruction encoding and semantics
-- SnesLab Super_FX wiki — register layout & SFR bit definitions
-- Wikibooks SNES Programming Super FX tutorial — opcode summary
-- jsgroth.dev SNES coprocessors part 7 — pipeline, cache, delay-slot
-  documentation
-- problemkaputt.de fullsnes.htm — SNES bus integration
-- Ghidra's MIPS / 6502 / ARM SLEIGH specs — SLEIGH idiom reference
-  (`delayslot`, `globalset`, context register patterns)
+- bsnes-emu/bsnes `processor/gsu/` (GPLv3+) — behavioral reference
+  for instruction encoding, mnemonic naming, and ALT-state tables.
+  Used as a black-box oracle (run the binary, compare text output);
+  no bsnes source code is incorporated into this repo.
+- bsnes-jg fork (GPLv3+) — same usage; consulted for the STOP
+  pipeline behaviour cited in `superfx.slaspec`.
+- SnesLab Super_FX wiki — register layout & SFR bit definitions.
+- Wikibooks SNES Programming Super FX tutorial — opcode summary.
+- jsgroth.dev SNES coprocessors part 7 — pipeline, cache, and
+  delay-slot documentation.
+- problemkaputt.de fullsnes.htm — SNES bus integration.
+- Ghidra's MIPS / 6502 / ARM SLEIGH specs (Apache-2.0) — SLEIGH
+  idiom reference (`delayslot`, `globalset`, context register
+  patterns). Methods/patterns only; no constructor text or other
+  expressive content was copied. Apache-2.0 attribution is
+  therefore not legally required for this repo, but the
+  acknowledgement is recorded here in good faith.
 
 ## Origin
 
