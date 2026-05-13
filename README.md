@@ -101,9 +101,9 @@ The module is byte-validated against bsnes' SuperFX disassembler
 used purely as a behavioral oracle — its text output is compared
 against this module's, and no bsnes source code is incorporated into
 the SLEIGH spec or any artifact shipped from this repo. The
-validation harness itself lives in the parent
-[Star Fox decomp project](https://github.com/edwardchekanua/StarFoxDecompilation)
-and is not redistributed here. It extracts a chunk of GSU code from
+validation harness itself lives in the parent Star Fox decomp
+project (private repository, not yet published) and is not
+redistributed here. It extracts a chunk of GSU code from
 a real Star Fox ROM, walks it linearly through both decoders, then
 diffs the two text outputs line by line. Across 64 KB of real GSU
 code (covering all 12 RPC entry points in Star Fox, plus their
@@ -141,11 +141,10 @@ across.
 
 ## Origin
 
-Originally developed as Phase 1a of a clean-room
-[Star Fox SNES decompilation](https://github.com/edwardchekanua/StarFoxDecompilation)
-(repo name pending publication). Split out into a standalone repo so
-it is useful to anyone reverse-engineering a SuperFX game, not only
-Star Fox.
+Originally developed as Phase 1a of a clean-room Star Fox SNES
+decompilation effort (private repository, not yet published).
+Split out into a standalone repo so it is useful to anyone
+reverse-engineering a SuperFX game, not only Star Fox.
 
 ## Reviewing your changes
 
