@@ -1,0 +1,14 @@
+# Ghidra extension build artifacts
+build/
+dist/
+*.zip
+
+# IDE / OS detritus
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local dev scratch
+*.log
+.claude/

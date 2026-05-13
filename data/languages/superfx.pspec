@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor_spec>
+
+  <!-- R15 is the GSU program counter. -->
+  <programcounter register="R15"/>
+
+  <!--
+    The SuperFX MMIO/control registers are at SNES bus addresses $3000-$32FF.
+    For self-disassembly the GSU executes from a 24-bit code space addressed
+    by (PBR << 16) | R15. Memory blocks here describe the canonical layout
+    in that 24-bit code space; the SuperFX loader is expected to map ROM/RAM
+    contents into the corresponding ranges.
+  -->
+  <default_memory_blocks>
+    <memory_block name="GSU_REGS"
+                  start_address="ram:3000"
+                  length="0x300"
+                  initialized="false"/>
+    <memory_block name="GSU_CACHE"
+                  start_address="ram:3100"
+                  length="0x200"
+                  initialized="false"/>
+  </default_memory_blocks>
+
+  <!--
+    Context register defaults. The ALT decoder state is cleared at reset.
+    See superfx.slaspec for how this context affects opcode decoding.
+  -->
+  <context_data>
+    <context_set space="ram">
+      <set name="altCtx" val="0" description="ALT1/ALT2/ALT3 prefix state for next instruction"/>
+      <set name="branchDelay" val="0" description="Branch delay slot indicator"/>
+    </context_set>
+  </context_data>
+
+</processor_spec>
