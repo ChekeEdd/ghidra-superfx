@@ -5,7 +5,7 @@
             endian="little"
             size="24"
             variant="default"
-            version="0.1"
+            version="0.3"
             slafile="superfx.sla"
             processorspec="superfx.pspec"
             id="SuperFX:LE:24:default">

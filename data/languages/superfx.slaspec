@@ -1,5 +1,30 @@
 # SLEIGH specification for the Nintendo SuperFX (GSU-1 / GSU-2) co-processor.
 #
+# Version 0.3.1 — small post-release review fixes:
+#   - pspec GSU_REGS length corrected to 0x100 (was 0x300, overlapped
+#     GSU_CACHE at $3100). Per the SuperFX bus map, $3000-$30FF is the
+#     register window and $3100-$32FF is the instruction cache.
+#   - ldefs version bumped from "0.1" to "0.3" so Ghidra's processor
+#     manager metadata matches the slaspec header.
+#   - STOP pipeline behaviour: bsnes-jg shows the pipeline gets
+#     forced to NOP on STOP; the byte after STOP in the instruction
+#     stream is NOT executed. An initial v0.3.1 patch wrongly added
+#     delayslot(1) to STOP; reverted before commit. STOP now has a
+#     plain semantic body. SnesLab's "follow STOP with a NOP" advice
+#     is an assembler-clarity convention, not an execution
+#     requirement.
+#
+#   Known limitation, scheduled for v0.4 — SREG/DREG (source/dest
+#   register selectors) are declared and tracked at the disassembly
+#   level (WITH Rn sets both, TO Rn sets DREG, FROM Rn sets SREG),
+#   but the ALU / LOAD / STORE / FROM / TO semantic bodies still
+#   read and write R0 directly instead of indirecting through the
+#   selectors. Mnemonic disassembly remains correct (matches bsnes
+#   ground truth on 64 KB of validated code) but the P-code emitted
+#   for the decompiler does not reflect data flow through TO/FROM/
+#   WITH prefixes. A full SREG/DREG-driven rewrite of the ALU
+#   semantics is the headline work item for v0.4.
+#
 # Version 0.3.0 — closes out the three items previously marked
 # "deferred / out of scope" by either implementing them or producing
 # concrete evidence that they cannot be addressed at the slaspec layer.
@@ -288,6 +313,20 @@ RAMWORD: addr    is imm8 [ addr = imm8 << 1; ]
 
 # ---- $00..$04: simple single-byte ops --------------------------------------
 
+# STOP halts the GSU and signals the SNES side via the IRQ flag.
+#
+# v0.3.1 history note: this constructor briefly carried `delayslot(1)`
+# in an attempt to model the SuperFX pipeline. That was wrong:
+# bsnes-jg's `regs.pipeline = 0x01;` in `instructionSTOP` does NOT
+# execute the byte that follows STOP — it replaces whatever was
+# pre-fetched with a NOP. The byte in the instruction stream after
+# STOP is therefore not executed (the GSU halts cleanly). Modelling
+# it as a delay slot would have made Ghidra emit P-code for a
+# non-executed byte and treat trailing data as code; reverted to a
+# plain semantic body. Per-iteration convention in real GSU code is
+# still to follow STOP with a NOP for assembler-clarity, but our
+# decoder doesn't fold that NOP into STOP's instruction. Documented
+# in CHANGELOG.md under v0.3.1 "Known limitation".
 :STOP    is op=0x00  { flagG = 0; flagIRQ = 1; }
 
 :NOP     is op=0x01  { }

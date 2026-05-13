@@ -4,6 +4,44 @@ All notable changes to ghidra-superfx are recorded in this file.
 The format is loosely based on Keep a Changelog; versions follow the
 SLEIGH spec's own version stamp in `data/languages/superfx.slaspec`.
 
+## v0.3.1 — 2026-05-13
+
+Post-release review fixes (cosmetic / correctness, no functional
+regression for mnemonic disassembly).
+
+### Fixed
+
+- **`GSU_REGS` / `GSU_CACHE` default memory blocks no longer overlap.**
+  v0.3.0 declared `GSU_REGS` as `start=$3000, length=0x300` which
+  collided with `GSU_CACHE` at `$3100`. Per the SuperFX bus map
+  the register window is `$3000-$30FF` (length `0x100`); the
+  instruction cache covers `$3100-$32FF`. Fixed in `superfx.pspec`.
+- **`STOP` pipeline behaviour documented (no semantic change).**
+  A first pass added `delayslot(1)` to `STOP` on the theory that the
+  byte after STOP runs as a delay slot. Pre-commit codex review
+  caught that this was wrong: bsnes-jg's `regs.pipeline = 0x01` line
+  in `instructionSTOP` REPLACES the pre-fetched byte with a NOP — it
+  does not execute the stream byte that follows STOP. Adding a delay
+  slot would have made Ghidra mis-execute and mis-classify whatever
+  followed STOP in memory. Reverted before commit; `STOP` keeps the
+  plain semantic body. SnesLab's "put a NOP after STOP" convention
+  is an assembler-clarity guideline, not an execution requirement.
+- **`superfx.ldefs` `version` bumped from `0.1` to `0.3`** so the
+  manifest the Ghidra Processor Manager UI reads matches the
+  slaspec header changelog.
+
+### Known limitation, scheduled for v0.4
+
+- **`SREG` / `DREG` selectors influence disassembly text but not
+  P-code data flow yet.** `WITH Rn` sets both selectors, `TO Rn`
+  sets `DREG`, `FROM Rn` sets `SREG`, but the ALU / LOAD / STORE /
+  FROM / TO semantic bodies still read and write `R0` directly.
+  Mnemonic disassembly remains 100 % byte-boundary and 100 %
+  family-name correct against bsnes; only the decompiler-facing
+  P-code is incorrect across TO / FROM / WITH prefix sequences.
+  Full SREG/DREG-driven rewrite of the ALU semantics is queued
+  for v0.4.
+
 ## v0.3.0 — 2026-05-13
 
 The "no more deferrals" release. Three items previously marked

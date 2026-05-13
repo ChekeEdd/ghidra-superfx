@@ -7,7 +7,9 @@ co-processor, the 16-bit RISC found inside enhancement-chip SNES cartridges.
 | Field | Value |
 |---|---|
 | Language id | `SuperFX:LE:24:default` |
-| Tested against | Ghidra 12.0.4 (should also work on 11.x with minor manifest tweaks) |
+| Tested against | Ghidra 12.0.4 (currently the latest public release) |
+| Forward compatibility | When a newer Ghidra ships (12.1, 12.2, …), open `extension.properties` and change the `version=12.0.4` line to match your build. The SLEIGH spec itself is forward-compatible; Ghidra's extension-version check is the only thing that gates loading. |
+| Backward compatibility | Should also work on Ghidra 11.3.2 by setting `version=11.3.2`; not fully retested for that release. |
 | Verified ROM | Star Fox (USA) Rev 2 (SHA1 `cf08148cd8f26d51f8c67c956179dfc594e7a4f1`) |
 | Accuracy | **100 % byte-boundary, 100 % mnemonic-family agreement** against bsnes ground truth across 64 KB of real GSU code |
 | License | BSD 3-Clause |

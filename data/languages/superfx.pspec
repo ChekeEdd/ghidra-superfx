@@ -5,16 +5,23 @@
   <programcounter register="R15"/>
 
   <!--
-    The SuperFX MMIO/control registers are at SNES bus addresses $3000-$32FF.
-    For self-disassembly the GSU executes from a 24-bit code space addressed
-    by (PBR << 16) | R15. Memory blocks here describe the canonical layout
-    in that 24-bit code space; the SuperFX loader is expected to map ROM/RAM
-    contents into the corresponding ranges.
+    SuperFX bus layout in the $3000-$32FF region:
+      $3000-$301F  R0..R15 (sixteen 16-bit GSU general registers)
+      $3030-$303F  Special-function registers (SFR low/high, BRAMR,
+                   PBR, ROMBR, CFGR, SCBR, CLSR, SCMR, VCR, RAMBR, CBR)
+      $3040-$30FF  Reserved (unmapped on real hardware)
+      $3100-$32FF  Instruction cache (512 bytes, mirrored into the
+                   GSU code space when CACHE is executed)
+
+    GSU_REGS therefore covers $3000-$30FF (length 0x100); GSU_CACHE
+    covers $3100-$32FF (length 0x200). Earlier versions of this spec
+    declared GSU_REGS as length 0x300 which overlapped GSU_CACHE —
+    fixed in v0.3.1.
   -->
   <default_memory_blocks>
     <memory_block name="GSU_REGS"
                   start_address="ram:3000"
-                  length="0x300"
+                  length="0x100"
                   initialized="false"/>
     <memory_block name="GSU_CACHE"
                   start_address="ram:3100"
