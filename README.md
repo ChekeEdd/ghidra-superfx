@@ -128,6 +128,27 @@ Originally developed as Phase 1a of a clean-room
 it is useful to anyone reverse-engineering a SuperFX game, not only
 Star Fox.
 
+## Reviewing your changes
+
+Before committing, run a quick automated review with:
+
+```sh
+python scripts/review.py
+```
+
+The script wraps the [Claude Code Codex plugin][codex-plugin]
+(`codex-companion.mjs`) so contributors can ask GPT-class models for
+a second pass over the working-tree diff. Use `--bg` to send it to
+the background, or `--base main` to diff against a named branch.
+The parent decomp project that birthed this module had codex catch
+four real bugs in the SLEIGH spec across iterations 13–16; the
+practice pays for itself quickly.
+
+If the Claude Code plugin isn't installed, `scripts/review.py` falls
+back to the bare `codex` CLI on PATH (best-effort).
+
+[codex-plugin]: https://github.com/openai/codex-plugin-cc
+
 ## Contributing
 
 Bug reports and PRs are welcome. If you find a real ROM where this
