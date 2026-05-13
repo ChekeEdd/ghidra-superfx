@@ -27,6 +27,20 @@ jobs:
     outputs:
       final_message: ${{ steps.run_codex.outputs.final-message }}
     steps:
+      - name: Verify OPENAI_API_KEY secret is set
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::error::OPENAI_API_KEY secret is not set for this repository."
+            echo "::error::Run: gh secret set OPENAI_API_KEY -R ${{ github.repository }}"
+            echo "::error::Without it, openai/codex-action's proxy server starts unauthenticated,"
+            echo "::error::dies silently, and the action loops on a missing server-info file"
+            echo "::error::until the 6-hour job timeout. Failing fast instead."
+            exit 1
+          fi
+          echo "OPENAI_API_KEY is set (length: ${#OPENAI_API_KEY} chars). Proceeding."
+
       - name: Checkout PR merge commit
         uses: actions/checkout@v5
         with:
